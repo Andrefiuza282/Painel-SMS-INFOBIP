@@ -1,1 +1,73 @@
+<!DOCTYPE html><html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Painel de Envio SMS - ANDREFIUZA</title>
+  <style>
+    body { font-family: Arial, sans-serif; background: #f7f7f7; padding: 20px; }
+    .container { max-width: 400px; margin: 0 auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+    input, textarea, button {
+      width: 100%; padding: 10px; margin-top: 10px; font-size: 1rem;
+      border: 1px solid #ccc; border-radius: 5px;
+    }
+    button { background-color: #007bff; color: white; border: none; cursor: pointer; }
+    button:hover { background-color: #0056b3; }
+    .status { margin-top: 15px; font-weight: bold; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Envio de SMS - ANDREFIUZA</h2>
+    <input type="text" id="numero" placeholder="Número de destino (ex: 5538997513314)" />
+    <textarea id="mensagem" rows="4" placeholder=" teste sms "></textarea>
+    <button onclick="enviarSMS()">Enviar SMS</button>
+    <div class="status" id="status"></div>
+  </div>  <script>
+    async function enviarSMS() {
+      const numero = document.getElementById('numero').value.trim();
+      const mensagem = document.getElementById('mensagem').value.trim();
+      const statusDiv = document.getElementById('status');
 
+      if (!numero || !mensagem) {
+        statusDiv.textContent = 'Preencha todos os campos.';
+        statusDiv.style.color = 'red';
+        return;
+      }
+
+      statusDiv.textContent = 'Enviando...';
+      statusDiv.style.color = 'black';
+
+      try {
+        const response = await fetch('https://api.infobip.com/sms/2/text/advanced', {
+          method: 'POST',
+          headers: {
+            'Authorization': 'App ib-eiomw-596CCA77801DA06EAE1ABCAEC3CF6058',
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          },
+          body: JSON.stringify({
+            messages: [
+              {
+                from: 'ANDREFIUZA',
+                destinations: [{ to: numero }],
+                text: mensagem
+              }
+            ]
+          })
+        });
+
+        const data = await response.json();
+        if (response.ok) {
+          statusDiv.textContent = 'SMS enviado com sucesso!';
+          statusDiv.style.color = 'green';
+        } else {
+          statusDiv.textContent = 'Erro ao enviar: ' + (data.requestError?.serviceException?.text || 'Erro desconhecido');
+          statusDiv.style.color = 'red';
+        }
+      } catch (error) {
+        statusDiv.textContent = 'Erro: ' + error.message;
+        statusDiv.style.color = 'red';
+      }
+    }
+  </script></body>
+</html>
